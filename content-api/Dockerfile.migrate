@@ -1,0 +1,12 @@
+FROM node
+
+WORKDIR /app
+
+COPY package.json yarn.lock ./
+
+RUN yarn install --production
+
+COPY ormconfig.js tsconfig.json ./
+COPY db ./db
+
+ENTRYPOINT ["bash", "-c", "yarn typeorm migration:run"]

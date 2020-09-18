@@ -1,0 +1,107 @@
+version: '2'
+
+services:
+  frontend:
+    image: node
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - "REACT_APP_CONTENT_API_URL=http://localhost:4200/api"
+      - "REACT_APP_USERS_API_URL=http://localhost:4201/api"
+      - "REACT_APP_KEYCLOAK_URL=http://localhost:8080/auth"
+      - REACT_APP_KEYCLOAK_REALM=conduit
+      - REACT_APP_KEYCLOAK_CLIENT_ID=frontend
+    ports:
+      - "4100:4100"
+    working_dir: /app
+    command: bash -c "yarn && yarn start"
+
+  users_api:
+    build: ./users-api
+    environment:
+      - NODE_ENV=production
+      - "CONTENT_API_URL=http://content_api:3000/api"
+      - "KEYCLOAK_URL=http://keycloak:8080"
+      - KEYCLOAK_REALM_NAME=conduit
+      - KEYCLOAK_ADMIN_CLIENT_ID=users-api
+      - KEYCLOAK_ADMIN_CLIENT_SECRET=cebf2185-5a86-4cc2-b391-685e04cd6117
+    ports:
+      - "4201:3000"
+    depends_on:
+      - content_api
+      - keycloak
+
+  content_api:
+    build: ./content-api
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=content_db
+      - DB_PORT=5432
+      - DB_DATABASE=content
+      - DB_USER=content
+      - DB_PASSWORD=password
+    ports:
+      - "4200:3000"
+    depends_on:
+      - content_db
+      - content_db_migrate
+
+  content_db_migrate:
+    build:
+      context: ./content-api
+      dockerfile: Dockerfile.migrate
+    environment:
+      - DB_HOST=content_db
+      - DB_PORT=5432
+      - DB_DATABASE=content
+      - DB_USER=content
+      - DB_PASSWORD=password
+    depends_on:
+      - content_db
+
+  content_db:
+    image: postgres:11.7
+    volumes:
+      - content_db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=content
+      - POSTGRES_USER=content
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  keycloak:
+    image: jboss/keycloak:7.0.1
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=kubernetes
+      - DB_VENDOR=postgres
+      - DB_ADDR=keycloak_db
+      - DB_DATABASE=keycloak
+      - DB_USER=keycloak
+      - DB_PASSWORD=password
+    ports:
+      - "8080:8080"
+    depends_on:
+      - keycloak_db
+
+  keycloak_db:
+    image: postgres:11.7
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5433:5432"
+
+volumes:
+  keycloak_db_data: {}
+  content_db_data: {}
