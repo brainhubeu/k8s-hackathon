@@ -13,7 +13,6 @@ resource "aws_security_group" "worker_group_mgmt_one" {
   }
 }
 
-
 resource "aws_security_group" "all_worker_mgmt" {
   name_prefix = "all_worker_management"
   vpc_id      = var.vpc_id

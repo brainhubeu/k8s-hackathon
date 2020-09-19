@@ -75,3 +75,9 @@ module "eks" {
   eks_subnet_ids           = module.vpc.private_subnets
   worker_subnet_ids        = module.vpc.private_subnets
 }
+
+module "databases" {
+  source = "../modules/databases"
+
+  db_subnet_ids = module.vpc.database_subnets
+}
