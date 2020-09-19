@@ -31,8 +31,13 @@ module "frontend" {
   }
 }
 
+locals {
+  cluster_name = "eks-main-cluster-production"
+}
+
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
+  version = "2.51.0"
 
   name = "k8s-hackathon-vpc"
   cidr = "10.0.0.0/16"
@@ -43,5 +48,30 @@ module "vpc" {
   database_subnets    = ["10.0.21.0/24", "10.0.22.0/24", "10.0.23.0/24"]
   elasticache_subnets = ["10.0.31.0/24", "10.0.32.0/24", "10.0.33.0/24"]
 
+  tags = {
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+  }
+
+  public_subnet_tags = {
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+    "kubernetes.io/role/elb"                      = "1"
+  }
+
+  private_subnet_tags = {
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+    "kubernetes.io/role/internal-elb"             = "1"
+  }
+
   enable_nat_gateway = true
+  single_nat_gateway   = true
+}
+
+module "eks" {
+  source = "../modules/eks"
+
+  cluster_name = local.cluster_name
+
+  vpc_id                   = module.vpc.vpc_id
+  eks_subnet_ids           = module.vpc.private_subnets
+  worker_subnet_ids        = module.vpc.private_subnets
 }
