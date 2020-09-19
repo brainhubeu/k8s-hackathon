@@ -79,5 +79,7 @@ module "eks" {
 module "databases" {
   source = "../modules/databases"
 
+  vpc_id = module.vpc.vpc_id
   db_subnet_ids = module.vpc.database_subnets
+  ingress_cidr_blocks = module.vpc.private_subnets_cidr_blocks
 }

@@ -12,6 +12,7 @@ module "content_db" {
   name = "contentdb"
 
   subnet_ids = var.db_subnet_ids
+  vpc_security_group_ids = [module.content_db_security_group.this_security_group_id]
 
   engine            = "postgres"
   engine_version    = "11.7"
