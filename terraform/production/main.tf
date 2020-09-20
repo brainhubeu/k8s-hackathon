@@ -36,7 +36,7 @@ locals {
 }
 
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
   version = "2.51.0"
 
   name = "k8s-hackathon-vpc"
@@ -63,7 +63,7 @@ module "vpc" {
   }
 
   enable_nat_gateway = true
-  single_nat_gateway   = true
+  single_nat_gateway = true
 }
 
 module "eks" {
@@ -71,15 +71,15 @@ module "eks" {
 
   cluster_name = local.cluster_name
 
-  vpc_id                   = module.vpc.vpc_id
-  eks_subnet_ids           = module.vpc.private_subnets
-  worker_subnet_ids        = module.vpc.private_subnets
+  vpc_id            = module.vpc.vpc_id
+  eks_subnet_ids    = module.vpc.private_subnets
+  worker_subnet_ids = module.vpc.private_subnets
 }
 
 module "databases" {
   source = "../modules/databases"
 
-  vpc_id = module.vpc.vpc_id
-  db_subnet_ids = module.vpc.database_subnets
+  vpc_id              = module.vpc.vpc_id
+  db_subnet_ids       = module.vpc.database_subnets
   ingress_cidr_blocks = module.vpc.private_subnets_cidr_blocks
 }
