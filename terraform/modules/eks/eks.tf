@@ -6,6 +6,7 @@ module "eks" {
   cluster_version = "1.17"
   subnets         = var.eks_subnet_ids
   vpc_id          = var.vpc_id
+  enable_irsa     = true
 
   node_groups_defaults = {
     ami_type  = "AL2_x86_64"

@@ -1,0 +1,9 @@
+traefik:
+  service:
+    enabled: true
+    type: LoadBalancer
+    # Additional annotations (e.g. for cloud provider specific config)
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: '*.k8s-hackathon.brainhub.pl'
+    # Additional entries here will be added to the service spec. Cannot contains
+    # type, selector or ports entries.

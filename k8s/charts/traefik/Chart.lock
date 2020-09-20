@@ -1,0 +1,6 @@
+dependencies:
+- name: traefik
+  repository: https://containous.github.io/traefik-helm-chart
+  version: 9.1.1
+digest: sha256:7bb7c0bab021aad42f271798190ac9fae2a60bb458fd6a3c07883053d39aeddb
+generated: "2020-09-20T15:40:12.131547+02:00"
